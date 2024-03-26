@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">JonathanThomasBoggle</string>
+    <string name="regular">#FFF4F1E9</string>
+    <string name="selected">#FFFFDE59</string>
+</resources>
