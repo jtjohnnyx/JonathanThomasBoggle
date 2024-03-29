@@ -20,13 +20,6 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.95"/>
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/bottom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.8"/>
-
     <View
         android:id="@+id/view"
         android:layout_width="0dp"
@@ -38,30 +31,47 @@
         android:background="@color/gray" />
 
 
-    <TextView
-        android:id="@+id/score"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@android:color/black"
-        android:textStyle="bold"
-        android:textSize="40sp"
-        android:singleLine="true"
-        android:padding="8dp"
+    <RelativeLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@id/vline1"
-        app:layout_constraintEnd_toStartOf="@id/newgame"/>
+        app:layout_constraintEnd_toEndOf="@id/vline2">
 
 
-    <Button
-        android:id="@+id/newgame"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="New Game"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/score"
-        app:layout_constraintEnd_toEndOf="@id/vline2" />
+        <Button
+            android:id="@+id/score"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            android:textSize="36sp"
+            android:gravity="left|center_vertical"
+            android:singleLine="true"
+            android:padding="8dp"
+            android:enabled="false"
+            android:backgroundTint="@color/regular"
+            android:layout_centerInParent="true" />
+
+
+        <Button
+            android:id="@+id/newgame"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="NEW GAME"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            android:textSize="24sp"
+            android:singleLine="true"
+            android:padding="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_centerInParent="true"
+            android:layout_alignEnd="@id/score"/>
+
+
+    </RelativeLayout>
+
 
 
 

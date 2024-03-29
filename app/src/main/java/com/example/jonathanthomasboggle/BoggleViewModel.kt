@@ -50,6 +50,10 @@ class BoggleViewModel : ViewModel() {
     val score: LiveData<Int>
         get() = _score
 
+    fun getScore() : Int? {
+        return _score.value
+    }
+
     val gameCount: LiveData<Int>
         get() = _gameCount
 

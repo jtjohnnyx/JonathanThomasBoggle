@@ -6,4 +6,7 @@
     <color name="regular">#FFF4F1E9</color>
     <color name="selected">#FFFFDE59</color>
     <color name="golden">#FFFFC439</color>
+    <color name="sea_buckthorn">#FFFAAB39</color>
+    <color name="shakespeare">#FF4495CB</color>
+    <color name="blumine">#FF1B5379</color>
 </resources>

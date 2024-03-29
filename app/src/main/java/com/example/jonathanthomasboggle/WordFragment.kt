@@ -1,11 +1,15 @@
 package com.example.jonathanthomasboggle
 
 
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.media.Image
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -14,6 +18,8 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.jonathanthomasboggle.databinding.FragmentWordBinding
+import kotlin.math.floor
+import kotlin.properties.Delegates
 import kotlin.random.Random
 
 class WordFragment : Fragment() {
@@ -22,6 +28,10 @@ class WordFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var buttons : List<ImageButton>
+
+    private var last = -1
+
+    private var connectors = mutableListOf<Int>()
 
     private lateinit var dict : List<String>
 
@@ -32,7 +42,6 @@ class WordFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
 
         _binding = FragmentWordBinding.inflate(inflater, container, false)
         return binding.root
@@ -74,6 +83,12 @@ class WordFragment : Fragment() {
                 button.isEnabled = false
                 updateLetters(index)
                 binding.word.append(letter.uppercaseChar().toString())
+
+                if (last != -1) {
+                    drawConnector(last, index, getDirection(last, index))
+                }
+                last = index
+
             }
         }
 
@@ -103,12 +118,54 @@ class WordFragment : Fragment() {
                 Log.d("VWD", "no text")
 
         }
-    }
 
+    }
     override fun onDestroyView() {
         super.onDestroyView()
         //BVM.score.removeObserver(Observer {})
         _binding = null
+    }
+
+    private fun dpToPx(dp: Float): Float {
+        val scale = requireContext().resources.displayMetrics.density
+        return dp * scale
+    }
+
+    private fun getDirection(last : Int, current : Int) : String {
+        val direction = "Vertical"
+
+        return direction
+    }
+
+    private fun drawConnector(last : Int, current : Int, direction : String) {
+
+        val connView = ConnectorView(requireContext(), null)
+        connView.id = View.generateViewId()
+        connectors.add(connView.id)
+
+        // Set custom attributes
+        val start = minOf(last, current)
+        val end = maxOf(last, current)
+
+        if (direction == "Vertical") {
+            connView.startX =
+                binding.gridLayout.left.toFloat() + (buttons[start].height.toFloat() / 2) + ((start % 4) * buttons[start].width.toFloat())
+            connView.startY =
+                binding.gridLayout.top.toFloat() + buttons[start].height.toFloat() - dpToPx(4f) + (floor(
+                    (start / 4).toDouble()
+                ).toInt() * buttons[start].height.toFloat())
+            connView.endX =
+                binding.gridLayout.left.toFloat() + (buttons[end].height.toFloat() / 2) + ((end % 4) * buttons[end].width.toFloat())
+            connView.endY =
+                binding.gridLayout.top.toFloat() + dpToPx(4f) + (floor((end / 4).toDouble()).toInt() * buttons[end].height.toFloat())
+        }
+
+        connView.width = 0.08f * buttons[start].width
+
+        // Invalidate the LineView to trigger redraw
+        connView.invalidate()
+
+        binding.conslayout.addView(connView)
     }
 
     private fun calcScore(word: String) : Int {
@@ -130,18 +187,18 @@ class WordFragment : Fragment() {
         var valid = true
         if (BVM.wordExists(word)) {
             valid = false
-            Toast.makeText(requireContext(), "Word already guessed", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Word already guessed (-10 pts)", Toast.LENGTH_SHORT).show()
         } else if (countVowels(word) < 2) {
             valid = false
-            Toast.makeText(requireContext(), "Not enough vowels", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Not enough vowels (-10 pts)", Toast.LENGTH_SHORT).show()
         } else if (word.length < 4) {
             valid = false
-            Toast.makeText(requireContext(), "Word too short", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Word too short (-10 pts)", Toast.LENGTH_SHORT).show()
         } else if (word !in dict) {
             valid = false
-            Toast.makeText(requireContext(), "Not a valid word", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Not a valid word (-10 pts)", Toast.LENGTH_SHORT).show()
         } else
-            Toast.makeText(requireContext(), "Correct!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Correct! (+${calcScore(word)} pts)", Toast.LENGTH_SHORT).show()
         return valid
     }
 
@@ -164,9 +221,15 @@ class WordFragment : Fragment() {
             buttons[i].setImageResource(imageId)
             buttons[i].isEnabled = true
 //            testing
-            binding.word.text = ""
 //            binding.instructions.text = ""
         }
+        for (id in connectors) {
+            val conn = binding.conslayout.findViewById<ConnectorView>(id)
+            binding.conslayout.removeView(conn)
+        }
+        binding.word.text = ""
+        connectors.clear()
+        last = -1
     }
 
     private fun updateLetters(i : Int) {
