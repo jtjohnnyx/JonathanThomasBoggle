@@ -76,8 +76,8 @@ class WordFragment : Fragment() {
 
         buttons.forEachIndexed { index, button ->
             button.setOnClickListener {
-                val letter = BVM.getLetter(index).letter
-                val imageId = resources.getIdentifier("letter_${letter}_selected", "drawable", requireContext().packageName)
+                var letter = BVM.getLetter(index).letter
+                var imageId = resources.getIdentifier("letter_${letter}_selected", "drawable", requireContext().packageName)
                 BVM.setLetter(index, letter, imageId, true)
                 button.setImageResource(imageId)
                 button.isEnabled = false
@@ -86,6 +86,10 @@ class WordFragment : Fragment() {
 
                 if (last != -1) {
                     drawConnector(last, index, getDirection(last, index))
+                    letter = BVM.getLetter(last).letter
+                    imageId = resources.getIdentifier("letter_${letter}_disabled", "drawable", requireContext().packageName)
+                    BVM.setLetter(last, letter, imageId, true)
+                    buttons[last].setImageResource(imageId)
                 }
                 last = index
 
@@ -132,9 +136,16 @@ class WordFragment : Fragment() {
     }
 
     private fun getDirection(last : Int, current : Int) : String {
-        val direction = "Vertical"
 
-        return direction
+        val start = minOf(last, current)
+        val end = maxOf(last, current)
+        if (end - start == 1)
+            return "Horizontal"
+        else if (end % 4 == start % 4)
+            return "Vertical"
+        else if (end - start == 5)
+            return "LDiagonal"
+        return "RDiagonal"
     }
 
     private fun drawConnector(last : Int, current : Int, direction : String) {
@@ -146,21 +157,41 @@ class WordFragment : Fragment() {
         // Set custom attributes
         val start = minOf(last, current)
         val end = maxOf(last, current)
+        val width = buttons[start].width.toFloat()
+        val height = buttons[start].height.toFloat()
+        val left = binding.gridLayout.left.toFloat()
+        val top = binding.gridLayout.top.toFloat()
+        val padding = buttons[start].paddingStart.toFloat()
+        val frame = ((height - (2 * padding)) * 0.04f)
 
         if (direction == "Vertical") {
-            connView.startX =
-                binding.gridLayout.left.toFloat() + (buttons[start].height.toFloat() / 2) + ((start % 4) * buttons[start].width.toFloat())
-            connView.startY =
-                binding.gridLayout.top.toFloat() + buttons[start].height.toFloat() - dpToPx(4f) + (floor(
-                    (start / 4).toDouble()
-                ).toInt() * buttons[start].height.toFloat())
-            connView.endX =
-                binding.gridLayout.left.toFloat() + (buttons[end].height.toFloat() / 2) + ((end % 4) * buttons[end].width.toFloat())
-            connView.endY =
-                binding.gridLayout.top.toFloat() + dpToPx(4f) + (floor((end / 4).toDouble()).toInt() * buttons[end].height.toFloat())
+            connView.startX = left + (width / 2) + ((start % 4) * width)
+            connView.startY = top - padding + ((floor(start / 4.0).toInt() + 1) * height) - frame
+            connView.endX = left + (width / 2) + ((end % 4) * width)
+            connView.endY = top + padding + (floor(end / 4.0).toInt() * height) + frame
+        }
+        if (direction == "Horizontal") {
+            connView.startX = left - padding + (((start % 4) + 1) * width) - frame
+            connView.startY = top + (height / 2) + (floor(start / 4.0).toInt() * height)
+            connView.endX = left + padding + ((end % 4) * width) + frame
+            connView.endY = top + (height / 2) + (floor(end / 4.0).toInt() * height)
+            //Log.d("HZT", "startX:${connView.startX} startY:${connView.startY} endX:${connView.endX} endY:${connView.endY}")
+        }
+        if (direction == "LDiagonal") {
+            connView.startX = left - padding + (((start % 4) + 1) * width) - frame
+            connView.startY = top - padding + ((floor(start / 4.0).toInt() + 1) * height) - frame
+            connView.endX = left + padding + (((start % 4) + 1) * width) + frame
+            connView.endY = top + padding + ((floor(start / 4.0).toInt() + 1) * height) + frame
+        }
+        if (direction == "RDiagonal") {
+            connView.startX = left + padding + ((start % 4) * width) + frame
+            connView.startY = top + height - padding + (floor(start / 4.0).toInt() * height) - frame
+            connView.endX = left - padding + ((start % 4) * width) - frame
+            connView.endY = top + height + padding + (floor(start / 4.0).toInt() * height) + frame
+            Log.d("HZT", "startX:${connView.startX} startY:${connView.startY} endX:${connView.endX} endY:${connView.endY}")
         }
 
-        connView.width = 0.08f * buttons[start].width
+        connView.width = 0.08f * width
 
         // Invalidate the LineView to trigger redraw
         connView.invalidate()
@@ -216,7 +247,7 @@ class WordFragment : Fragment() {
     private fun clearLetters() {
         for (i in 0..15) {
             val l = BVM.getLetter(i)
-            val imageId = resources.getIdentifier("letter_${l.letter}_enabled", "drawable", requireContext().packageName)
+            val imageId = resources.getIdentifier("letter_${l.letter}_valid", "drawable", requireContext().packageName)
             BVM.setLetter(i, l.letter, imageId, false)
             buttons[i].setImageResource(imageId)
             buttons[i].isEnabled = true
@@ -317,7 +348,7 @@ class WordFragment : Fragment() {
             }
 
             //val buttonId = resources.getIdentifier("button${i}", "id", requireContext().packageName)
-            val imageId = resources.getIdentifier("letter_${letter}_enabled", "drawable", requireContext().packageName)
+            val imageId = resources.getIdentifier("letter_${letter}_valid", "drawable", requireContext().packageName)
 
             //binding.root.findViewById<ImageButton>(buttonId).setImageResource(imageId)
             BVM.setLetter(i, letter, imageId, false)
