@@ -51,6 +51,7 @@
             android:singleLine="true"
             android:padding="8dp"
             android:enabled="false"
+            android:fontFamily="@font/brookline"
             android:backgroundTint="@color/regular"
             android:layout_centerInParent="true" />
 
@@ -71,9 +72,6 @@
 
 
     </RelativeLayout>
-
-
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,25 +1,19 @@
 package com.example.jonathanthomasboggle
 
 
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.media.Image
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewTreeObserver
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.example.jonathanthomasboggle.databinding.FragmentWordBinding
 import kotlin.math.floor
-import kotlin.properties.Delegates
 import kotlin.random.Random
 
 class WordFragment : Fragment() {
@@ -28,6 +22,8 @@ class WordFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var buttons : List<ImageButton>
+
+    private val selectedButtons = HashSet<ImageButton>()
 
     private var last = -1
 
@@ -92,7 +88,6 @@ class WordFragment : Fragment() {
                     buttons[last].setImageResource(imageId)
                 }
                 last = index
-
             }
         }
 
@@ -361,5 +356,6 @@ class WordFragment : Fragment() {
         val randomIndex = (chars.indices).random()
         return chars[randomIndex]
     }
+    
 
 }
